@@ -12,11 +12,11 @@ export function getFile(target) {
 
 export function install(hook, vm) {
   const config = Object.assign({}, {
-		tag: 'remoteMarkdownUrl',
-	}, vm.config.remoteMarkdown);
+    tag: 'remoteMarkdownUrl',
+  }, vm.config.remoteMarkdown);
 
   hook.beforeEach(function (content, next) {
-    const reg = new RegExp(`\\[${config.tag}\\]\\((http|https://.+)\\)`);
+    const reg = new RegExp(`\\[${config.tag}\\]\\((http://.+|https://.+)\\)`, "g");
     const result = content.match(reg);
 
     if (result && result[1]) {
