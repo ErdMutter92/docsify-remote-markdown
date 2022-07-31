@@ -17,13 +17,17 @@ export function install(hook, vm) {
 
   hook.beforeEach(function (content, next) {
     const reg = new RegExp(`\\[${config.tag}\\]\\((http://.+|https://.+)\\)`, "g");
-    const result = content.match(reg);
+    const tags = content.match(reg);
 
-    if (result && result[1]) {
-      const targetFile = result[1];
-      getFile(targetFile)
-        .then((data) => next(content.replace(reg, `\n ${data} \n`)))
-        .catch((err) => console.error(err));
+    if (tags && tags.length > 0) {
+      Promise.all(
+        tags.map((tag) => fetch(tag.slice(tag.indexOf("(")+1,tag.indexOf(")"))).then((resp) => resp.text()))
+      ).then((texts) => {
+        texts.forEach((data, idx) => {
+          content = content.replace(tags[idx], `\n ${data} \n`);
+        });
+        next(content);
+      });
     } else {
       next(content);
     }
